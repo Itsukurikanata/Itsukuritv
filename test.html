@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>診断</title>
+<style>body{background:#111;color:#eee;font-family:sans-serif;padding:12px}pre{white-space:pre-wrap;font-size:13px}</style>
+</head><body>
+<button id="b">診断する</button>
+<pre id="o"></pre>
+<script>
+var P='//tsb-mega.i9.ee/stream/nhkg_avc_1080p';
+function out(t){document.getElementById('o').textContent+=t+'\n'}
+async function t(url){
+  out('--- '+url);
+  try{
+    var c=new AbortController();
+    var r=await fetch(url,{mode:'cors',signal:c.signal});
+    out('status: '+r.status+' type: '+r.headers.get('content-type'));
+    var rd=r.body.getReader();
+    var x=await rd.read();
+    out('読めたバイト数: '+(x.value?x.value.length:0)+' 先頭: 0x'+(x.value?x.value[0].toString(16):'-'));
+    c.abort();
+  }catch(e){out('失敗: '+e)}
+}
+document.getElementById('b').onclick=async function(){
+  document.getElementById('o').textContent='';
+  out('MSE: '+(window.ManagedMediaSource?'ManagedMediaSource あり':window.MediaSource?'MediaSource あり':'なし'));
+  await t('https:'+P);
+  await t('http:'+P);
+};
+</script></body></html>
